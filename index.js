@@ -43,6 +43,53 @@ server.get('/api/users/:id', (req, res) => {
     })
 })
 
+// POST new users
+server.post('/db', (req, res) => {
+    const newObj = req.body;
+
+    db.insert(newObj)
+        .then(newEntry => {
+            if(newEntry){
+                const { id } = newEntry;
+                db.findById(id)
+                    .then(data => {
+                        res.status(200).json(data)
+                    });
+                }
+                else {
+                    res.status(404).json({
+                        message:'Not a valid New User'
+                    })
+                }
+            })
+        .catch(err => {
+            res.status(500).json({
+                err: err,
+                message: 'Failed to create New User'
+                })
+            })
+        })
+
+        server.delete('/db/:id', (req, res) =>{
+            const { id } = req.params;
+            db.remove(id)
+                .then(deleteDB => {
+                    if(deleteDB) {
+                        res.json(deleteDB);
+                    }
+                    res.status(404).json({
+                        message:'Invalid ID'
+                    })
+                })
+        })
+
+        .catch(err => {
+            res.status(500).json({
+                err: err,
+                message:'Failed to delete new DB'
+            })
+        })
+
 server.listen(port=(4000), ()=>{
     console.log(`server is listening on port ${port}`);
 });
